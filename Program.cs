@@ -12,56 +12,52 @@ using System.Linq.Expressions;
 
 namespace Banking_Sytem
 {
-
     public class User
     {
-
         private string sName;
         private int iNumber;
         private string sPassword;
         private int iAccount_number;
         private double dAccount_balance;
 
-        public string name
+        public string Name
         {
             get { return sName; }
-            set { name = value; }
+            set { sName = value; }
         }
 
-        public int number
+        public int Number
         {
             get { return iNumber; }
-            set { number = value; }
+            set { iNumber = value; }
         }
 
-        public string password
+        public string Password
         {
             get { return sPassword; }
-            set { password = value; }
+            set { sPassword = value; }
         }
 
-        public int account_number
+        public int AccountNumber
         {
             get { return iAccount_number; }
-            set { account_number = value; }
+            set { iAccount_number = value; }
         }
 
-        public double account_balance
+        public double AccountBalance
         {
             get { return dAccount_balance; }
-            set { account_balance = value; }
+            set { dAccount_balance = value; }
         }
 
         public User(string sName, int iNumber, string sPassword, int iAccountNumber, double dAccount_balance)
         {
-
-            this.name = sName;
-            this.number = iNumber;
-            this.password = sPassword;
-            this.account_number = iAccountNumber;
-            this.account_balance = dAccount_balance = 0;
+            this.Name = sName;
+            this.Number = iNumber;
+            this.Password = sPassword;
+            this.AccountNumber = iAccountNumber;
+            this.AccountBalance = dAccount_balance;
         }
-
     }
 
     /// <summary>
@@ -74,7 +70,9 @@ namespace Banking_Sytem
         static string userInfoFilePath = @"C:\Users\Ismail\Desktop\C#\Banking Sytem\UserInfo.txt", userIdFilePath2 =
             @"C:\Users\Ismail\Desktop\C#\Banking Sytem\userId.txt";
 
-        static bool InfoExistsInFile(string info, string filePath)
+        static List<User> currentUser = new List<User>();
+
+        static bool InfoExistsInFile(long info, string filePath) // change this from long to string
         {
             bool exists = false;
 
@@ -87,7 +85,7 @@ namespace Banking_Sytem
 
                     while (line != null)
                     {
-                        if (line.Contains(info))
+                        if (line.Contains(info)) // or change this from string to long
                         {
                             found = true;
                             break;
@@ -95,7 +93,6 @@ namespace Banking_Sytem
                     }
                     exists = found ? true : false;
                 }
-
             }
             catch (IOException e)
             {
@@ -113,7 +110,7 @@ namespace Banking_Sytem
         static string CreateUserId(string name)
         {
 
-            string ID = InfoExistsInFile(GenerateRandomNumber(10) + name, userInfoFilePath) ? GenerateRandomNumber(10) + name : GenerateRandomNumber(10) + name;
+            string ID = InfoExistsInFile(GenerateRandomNumber(10), userInfoFilePath) ? GenerateRandomNumber(10): GenerateRandomNumber(10);
             return ID;
         }
 
@@ -122,11 +119,10 @@ namespace Banking_Sytem
             try
             {
                 using (StreamWriter writer = new StreamWriter(userInfoFilePath, true))
-                {
-                    writer.WriteLine($"{name}, {phone_number}, {password}, {CreateUserId(name)}");
-                }
-                Console.WriteLine("data has been written to the file");
+                {writer.WriteLine($"{name}, {phone_number}, {password}, {CreateUserId(name)}");}
 
+                Console.WriteLine("data has been written to the file");
+                
             }
             catch (IOException e)
             {
@@ -158,7 +154,10 @@ namespace Banking_Sytem
             }
 
             SaveUserInfoToFile(user_answers[0], user_answers[1], user_answers[2]);
-
+            User newUser = new User(user_answers[0], Convert.ToInt32(user_answers[1]), user_answers[2], Convert.ToInt32(CreateUserId(user_answers[0])), 0.00);
+            currentUser.Add(newUser);
+            ClearConsole();
+            MainMenu();
         }
 
         static void Login()
@@ -175,6 +174,11 @@ namespace Banking_Sytem
             }
         }
 
+        static string ShowUserInfo()
+        {
+            return $" \n Currently Logged in As: {currentUser[0].Name} \n Current Balance: R{currentUser[0].AccountBalance} \n";
+        }
+
         static string CreateWelcomeText()
         {
             string border = "#=======================================#",
@@ -184,48 +188,48 @@ namespace Banking_Sytem
         }
 
 
+        static void MainMenu()
+        {
+            
+            Console.WriteLine($"{CreateWelcomeText()} \n {ShowUserInfo()} Please Select A Service: \n 1. Balance \n 2. Deposit  \n 3. Withdraw");
+
+            Console.WriteLine("Please select an option: ");
+            string menuOption = Console.ReadLine();
+
+            switch (menuOption)
+            {
+                case "1": Console.WriteLine(); break;
+
+                case "2": Console.WriteLine(); break;
+
+                case "3": Console.WriteLine(); break;
+            }
+        }
+
         static void Test()
         {
-
             for (int i = 0; i < 6; i++)
             {
-                for (int k = 0; k < 6 - i - 1; k++)
-                {
-                    Console.Write(" ");
-                }
-
-                for (int j = 0; j < 2 * i + 1; j++)
-                {
-                    Console.Write("*");
-                }
-
+                for (int k = 0; k < 6 - i - 1; k++) Console.Write(" ");
+                for (int j = 0; j < 2 * i + 1; j++) Console.Write("*");
                 Console.WriteLine();
             }
-
         }
 
         static void ShowNavigationMenu()
         {
-
-            Console.WriteLine("1. Login" + "\n" + "2. Register" + "\n");
-
-            Console.Write("Please select an option(1 or 2): ");
-
+            Console.WriteLine("1. Login" + "\n" + "2. Register" + "\n" + "Please select an option(1 or 2): ");
             string selectedOption = Console.ReadLine();
-
-            // selectedOption == "1" ? Login() : Register(); --> find out why ternary operators do not work for these..
+            
+            // selectedOption == "1" ? Login() : Register(); --> find out why ternary operators do not work for function calling..
 
             if (selectedOption == "1") { Login(); } else if (selectedOption == "2") { Register(); }
         }
 
         static void Main(string[] args)
         {
-            //Console.WriteLine(CreateWelcomeText());
-
-            //ShowNavigationMenu();
-
-            Test();
-
+            Console.WriteLine(CreateWelcomeText());
+            ShowNavigationMenu();
         }
     }
 }
