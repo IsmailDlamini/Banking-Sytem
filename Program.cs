@@ -168,7 +168,7 @@ namespace Banking_Sytem
                 credentials.Add(Console.ReadLine());
             }
 
-            if (allUsers.Any(user => user.Number == credentials[0]) && allUsers.Any(user => user.Number == credentials[1]))
+            if (allUsers.Any(user => user.Number == credentials[0]) && allUsers.Any(user => user.Password == credentials[1]))
             {
                 MainMenu();
             }
