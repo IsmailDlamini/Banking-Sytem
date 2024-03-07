@@ -117,7 +117,7 @@ namespace Banking_Sytem
             try
             {
                 using (StreamWriter writer = new StreamWriter(userInfoFilePath, true))
-                {writer.WriteLine($"{name}, {phone_number}, {password}, {CreateUserId(name)}, {balance}");}
+                {writer.WriteLine($"{name},{phone_number},{password},{CreateUserId(name)},{balance}");}
                 
             }
             catch (IOException e)
@@ -130,6 +130,7 @@ namespace Banking_Sytem
         {
             Console.Clear();
         }
+
         static void Register()
         {
             ClearConsole();
@@ -149,7 +150,7 @@ namespace Banking_Sytem
             }
 
             SaveUserInfoToFile(user_answers[0], user_answers[1], user_answers[2], "0,00");
-            User newUser = new User(user_answers[0], user_answers[1], user_answers[2], CreateUserId(user_answers[0]), "0,00");
+            User newUser = new User(user_answers[0], user_answers[1], user_answers[2], CreateUserId(user_answers[0]), "0.00");
             currentUser.Add(newUser);
             ClearConsole();
             MainMenu();
@@ -168,14 +169,18 @@ namespace Banking_Sytem
                 credentials.Add(Console.ReadLine());
             }
 
-            if (allUsers.Any(user => user.Number == credentials[0]) && allUsers.Any(user => user.Number == credentials[1]))
+            if (allUsers.Any(user => user.Number == credentials[0]) && allUsers.Any(user => user.Password == credentials[1]))
             {
+                User loggedInUser = allUsers.FirstOrDefault(user => user.Number == credentials[0]);
+                currentUser.Add(loggedInUser);
+                ClearConsole();
                 MainMenu();
             }
             else
             {
                 Console.WriteLine("Incorrect email or password");
-                
+                ClearConsole();
+                Login();
             }
            
         }
@@ -226,11 +231,10 @@ namespace Banking_Sytem
             }
         }
 
-
         static void MainMenu()
         {
             
-            Console.WriteLine($" \n {CreateWelcomeText()} \n {ShowUserInfo()} \n Please Select A Service: \n \n 1. Balance \n 2. Deposit  \n 3. Withdraw");
+            Console.WriteLine($" \n {CreateWelcomeText()} \n {ShowUserInfo()} \n Please Select A Service: \n \n 1. Deposit \n 2. Withdraw  \n 3. Transfer");
 
             Console.WriteLine("\n Please select an option: ");
             string menuOption = Console.ReadLine();
@@ -260,7 +264,7 @@ namespace Banking_Sytem
             Console.WriteLine("1. Login" + "\n" + "2. Register" + "\n" + "\n" + "Please select an option(1 or 2): ");
             string selectedOption = Console.ReadLine();
             
-            // selectedOption == "1" ? Login() : Register(); --> find out why ternary operators do not work for function calling..
+            // selectedOption == "1" ? Login() : Register();// --> find out why ternary operators do not work for function calling..
 
             if (selectedOption == "1") { Login(); } else if (selectedOption == "2") { Register(); }
         }
