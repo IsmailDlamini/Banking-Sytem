@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -9,6 +9,7 @@ using System.Web;
 using System.Xml;
 using System.IO;
 using System.Linq.Expressions;
+using System.Xml.Linq;
 
 namespace Banking_Sytem
 {
@@ -63,13 +64,13 @@ namespace Banking_Sytem
     internal class Program
     {
 
-        static string userInfoFilePath = @"C:\Users\Ismail\Desktop\C#\Banking Sytem\UserInfo.txt", userIdFilePath2 =
+         static string userInfoFilePath = @"C:\Users\Ismail\Desktop\C#\Banking Sytem\UserInfo.txt", userIdFilePath2 =
             @"C:\Users\Ismail\Desktop\C#\Banking Sytem\userId.txt";
 
-        static List<User> currentUser = new List<User>();
-        static List<User> allUsers = new List<User>();
+         static List<User> currentUser = new List<User>();
+         static List<User> allUsers = new List<User>();
 
-        static bool InfoExistsInFile(string info, string filePath) // change this from long to string
+        static bool InfoExistsInFile(string info, string filePath) 
         {
             bool exists = false;
 
@@ -83,7 +84,7 @@ namespace Banking_Sytem
 
                     while ((line = reader.ReadLine()) != null)
                     {
-                        if (line.Contains(info)) // or change this from string to long
+                        if (line.Contains(info))
                         {
                             found = true;
                             break;
@@ -94,6 +95,7 @@ namespace Banking_Sytem
             }
             catch (IOException e)
             {
+                Console.WriteLine("There was an error reading the information that is in the file:", e);
             }
             return exists ? true : false;
         }
@@ -117,7 +119,7 @@ namespace Banking_Sytem
             try
             {
                 using (StreamWriter writer = new StreamWriter(userInfoFilePath, true))
-                {writer.WriteLine($"{name}, {phone_number}, {password}, {CreateUserId(name)}, {balance}");}
+                {writer.WriteLine($"{name},{phone_number},{password},{CreateUserId(name)},{balance}");}
                 
             }
             catch (IOException e)
@@ -126,10 +128,8 @@ namespace Banking_Sytem
             }
         }
 
-        static void ClearConsole()
-        {
-            Console.Clear();
-        }
+        static void ClearConsole(){Console.Clear();}
+
         static void Register()
         {
             ClearConsole();
@@ -149,7 +149,7 @@ namespace Banking_Sytem
             }
 
             SaveUserInfoToFile(user_answers[0], user_answers[1], user_answers[2], "0,00");
-            User newUser = new User(user_answers[0], user_answers[1], user_answers[2], CreateUserId(user_answers[0]), "0,00");
+            User newUser = new User(user_answers[0], user_answers[1], user_answers[2], CreateUserId(user_answers[0]), "0.00");
             currentUser.Add(newUser);
             ClearConsole();
             MainMenu();
@@ -170,12 +170,16 @@ namespace Banking_Sytem
 
             if (allUsers.Any(user => user.Number == credentials[0]) && allUsers.Any(user => user.Password == credentials[1]))
             {
+                User loggedInUser = allUsers.FirstOrDefault(user => user.Number == credentials[0]);
+                currentUser.Add(loggedInUser);
+                ClearConsole();
                 MainMenu();
             }
             else
             {
                 Console.WriteLine("Incorrect email or password");
-                
+                ClearConsole();
+                Login();
             }
            
         }
@@ -225,23 +229,83 @@ namespace Banking_Sytem
  
             }
         }
+        static void UpdateUserInformation()
+        {
 
+            string[] lines = File.ReadAllLines(userIdFilePath2);
+
+              using(StreamWriter writer = new StreamWriter(userInfoFilePath))
+            {
+                string line;
+
+                using(StreamReader reader = new StreamReader(userInfoFilePath))
+                {
+                    while((line = reader.ReadLine()) != null)
+                    {
+                        if (line.Contains(currentUser[0].Number))
+                        {
+                            
+                        }
+                    }
+                }
+                
+            } 
+        }
+
+        static void cashProcess(string processType)
+        {
+            CreateWelcomeText();
+            ClearConsole();
+            CreateWelcomeText();
+
+            Console.Write($"Please enter the amount of money you want to {processType}: ");
+            decimal moneyToProcess = decimal.Parse(Console.ReadLine());
+
+            decimal currentAmount = decimal.Parse(currentUser[0].AccountBalance);
+
+            decimal newAmount = processType  == "Deposit" ? currentAmount + moneyToProcess : currentAmount - moneyToProcess;
+
+            if(newAmount > 0)
+            {
+                currentUser[0].AccountBalance = newAmount.ToString("0.00");
+                ClearConsole();
+                Console.WriteLine("Cash Process was successful" + "\n" + "Press any key to go back to the main menu");
+                Console.ReadKey();
+                ClearConsole();
+                MainMenu();
+            }
+            else
+            {
+                ClearConsole();
+                Console.WriteLine("You do not have enough funds to complete the transaction:" + "\n" + "Press any key to go back to the main menu");
+                Console.ReadKey();
+                ClearConsole();
+                MainMenu();
+            }
+        
+        }
 
         static void MainMenu()
         {
             
-            Console.WriteLine($" \n {CreateWelcomeText()} \n {ShowUserInfo()} \n Please Select A Service: \n \n 1. Balance \n 2. Deposit  \n 3. Withdraw");
+            Console.WriteLine($" \n {CreateWelcomeText()} \n {ShowUserInfo()} \n Please Select A Service: \n \n 1. Deposit \n 2. Withdraw  \n 3. Transfer");
 
             Console.WriteLine("\n Please select an option: ");
             string menuOption = Console.ReadLine();
 
             switch (menuOption)
             {
-                case "1": Console.WriteLine(); break;
+                case "1":
+                    cashProcess("Deposit");
+                    break;
 
-                case "2": Console.WriteLine(); break;
+                case "2":
+                    cashProcess("Widthdraw");
+                    break;
 
-                case "3": Console.WriteLine(); break;
+                case "3": 
+                    Console.WriteLine(); 
+                    break;
             }
         }
 
@@ -260,7 +324,7 @@ namespace Banking_Sytem
             Console.WriteLine("1. Login" + "\n" + "2. Register" + "\n" + "\n" + "Please select an option(1 or 2): ");
             string selectedOption = Console.ReadLine();
             
-            // selectedOption == "1" ? Login() : Register(); --> find out why ternary operators do not work for function calling..
+            // selectedOption == "1" ? Login() : Register();// --> find out why ternary operators do not work for function calling..
 
             if (selectedOption == "1") { Login(); } else if (selectedOption == "2") { Register(); }
         }
@@ -271,6 +335,7 @@ namespace Banking_Sytem
             Console.WriteLine(CreateWelcomeText());
             ShowNavigationMenu();
             //MainMenu();
+
         }
     }
 }
