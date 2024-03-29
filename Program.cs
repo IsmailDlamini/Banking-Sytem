@@ -332,21 +332,24 @@ namespace Banking_Sytem
                     {
                         if(choice == "yes")
                         {
-                            if (int.Parse(currentUser[0].AccountBalance) - int.Parse(responses[1]) > 0)
+                            if (int.Parse(currentUser[0].AccountBalance) - int.Parse(responses[1]) >= 0)
                             {
                                 int newReceiverAmount = int.Parse(intendedReceiver.AccountBalance) + int.Parse(responses[1]);
                                 int newSenderAmount = int.Parse(currentUser[0].AccountBalance) - int.Parse(responses[1]);
 
                                 UpdateUserInformation(intendedReceiver.Number, newReceiverAmount.ToString(), "balance");
                                 UpdateUserInformation(currentUser[0].Number, newSenderAmount.ToString(), "balance");
+
+                                currentUser[0].AccountBalance = newSenderAmount.ToString();
+                               
                                 LoadALlInformation();
 
-                                Prompts($"Success: You have sent R{responses[1]} to {intendedReceiver.Name} \n  press any key to go back to the main menu");
+                                Prompts($"Success: You have sent R{responses[1]} to {intendedReceiver.Name} \n press any key to go back to the main menu");
                                 MainMenu();
                             }
                             else
                             {
-                                Prompts("Error 500: You do not have enough money in your account \n  press any key to go back to the main menu");
+                                Prompts("Error 500: You do not have enough money in your account \n press any key to go back to the main menu");
                                 MainMenu();
                             }
                         }
@@ -363,13 +366,13 @@ namespace Banking_Sytem
                 }
                 else
                 {
-                    Prompts("Error 404: There is no user with the number you provided \n  press any key to re-enter the phone number");
+                    Prompts("Error 404: There is no user with the number you provided \n press any key to re-enter the phone number");
                     TransferCash();
                 }
             }
             else
             {
-                Prompts("Error 500: Please provide The required Values \n  press any key to re-enter the values");
+                Prompts("Error 500: Please provide The required Values \n press any key to re-enter the values");
                 TransferCash();
             }
 
@@ -398,7 +401,6 @@ namespace Banking_Sytem
                     break;
             }
         }
-
         static void Test()
         {
             for (int i = 0; i < 6; i++)
@@ -418,11 +420,10 @@ namespace Banking_Sytem
 
                 if (selectedOption == "1") { Login(); } else if (selectedOption == "2") { Register(); }
             }
-            catch () // you need to find the correct data type that you are going to be using for this exception
+            catch (IOException) // you need to find the correct data type that you are going to be using for this exception
             {
                 Prompts("an error has occured!!!! Please check inputs \nPress any key to go back to the main menu");
             }
-            
         }
 
         static void Main(string[] args)
